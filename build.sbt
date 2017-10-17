@@ -1,19 +1,31 @@
 val commonSettings = Seq(
-    organization := "com.voltir",
-    version := "1.0",
-    parallelExecution in Test := false,
-    //fork := true,
-    scalacOptions ++= Seq(
-      "-language:existentials",
-      "-Xfuture",
-      "-Ypartial-unification"
-    ),
-    crossScalaVersions := Seq("2.12.3", "2.11.11"),
-    resolvers += "Akka Snapshots" at "https://repo.akka.io/snapshots/",
-    addCompilerPlugin(Dependencies.kindProjector)
-  )
+  organization := "com.voltir",
+  version := "0.1.0",
+  parallelExecution in Test := false,
+  //fork := true,
+  scalacOptions ++= Seq(
+    "-language:existentials",
+    "-Xfuture",
+    "-Ypartial-unification"
+  ),
+  crossScalaVersions := Seq("2.12.3", "2.11.11"),
+  resolvers += "Akka Snapshots" at "https://repo.akka.io/snapshots/",
+  addCompilerPlugin(Dependencies.kindProjector),
 
-lazy val root = Project("rules", file("." + "rules")).in(file("."))
+  //Takt S3 Publishing
+  resolvers ++= Seq(
+    "Takt Snapshots" at "s3://mvn.takt.com/snapshots",
+    "Takt Releases" at "s3://mvn.takt.com/releases"
+  ),
+  publishMavenStyle := false,
+  publishTo := {
+    val typ = if (isSnapshot.value) "snapshots" else "releases"
+    Some(s"Takt $typ" at s"s3://mvn.takt.com/$typ")
+  }
+)
+
+lazy val root = Project("rules", file("." + "rules"))
+  .in(file("."))
   .aggregate(core, aws, quartz)
   .settings(commonSettings: _*)
 
