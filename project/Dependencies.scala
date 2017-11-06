@@ -14,14 +14,16 @@ object Dependencies {
   lazy val common = Seq(
     "com.typesafe.akka" %% "akka-typed" % akkaTypedVersion,
     "com.lihaoyi" %% "scalarx" % scalaRxVersion,
-    "org.scalatest" %% "scalatest" % "3.0.4" % "test"
+    "org.typelevel" %% "cats-core" % "1.0.0-MF",
+    "org.scalatest" %% "scalatest" % "3.0.4" % Test,
+    "org.scalamock" %% "scalamock" % "4.0.0" % Test,
+    "com.typesafe.akka" %% "akka-typed-testkit" % akkaTypedVersion  % Test
+
   )
 
   def scalaReflect = setting("org.scala-lang" % "scala-reflect" % scalaVersion.value)
 
-  lazy val core = common ++ Seq(
-    "com.typesafe.akka" %% "akka-typed-testkit" % akkaTypedVersion  % "test"
-  )
+  lazy val core = common
 
   lazy val aws = common ++ Seq(
     "com.amazonaws" % "aws-java-sdk" % awsVersion,

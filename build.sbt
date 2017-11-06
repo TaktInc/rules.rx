@@ -1,17 +1,6 @@
 val commonSettings = Seq(
   organization := "com.voltir",
-  version := "0.1.0",
-  parallelExecution in Test := false,
-  //fork := true,
-  scalacOptions ++= Seq(
-    "-language:existentials",
-    "-Xfuture",
-    "-Ypartial-unification"
-  ),
-  crossScalaVersions := Seq("2.12.3", "2.11.11"),
-  resolvers += "Akka Snapshots" at "https://repo.akka.io/snapshots/",
-  addCompilerPlugin(Dependencies.kindProjector),
-
+  version := "0.1.1-SNAPSHOT",
   //Takt S3 Publishing
   resolvers ++= Seq(
     "Takt Snapshots" at "s3://mvn.takt.com/snapshots",
@@ -21,12 +10,26 @@ val commonSettings = Seq(
   publishTo := {
     val typ = if (isSnapshot.value) "snapshots" else "releases"
     Some(s"Takt $typ" at s"s3://mvn.takt.com/$typ")
-  }
+  },
+  parallelExecution in Test := false,
+  //fork in Test := true,
+  scalacOptions ++= Seq(
+    "-language:existentials",
+    "-language:experimental.macros",
+    "-Xfuture",
+    "-Ypartial-unification"
+  ),
+  crossScalaVersions := Seq("2.12.3", "2.11.11"),
+  resolvers += "Akka Snapshots" at "https://repo.akka.io/snapshots/",
+  addCompilerPlugin(Dependencies.kindProjector),
+  resolvers += Resolver.sonatypeRepo("releases"),
+  addCompilerPlugin(
+    "org.scalamacros" % "paradise" % "2.1.0" cross CrossVersion.full)
 )
 
 lazy val root = Project("rules", file("." + "rules"))
   .in(file("."))
-  .aggregate(core, aws, quartz)
+  .aggregate(core, s3, emr, quartz)
   .settings(commonSettings: _*)
 
 lazy val core = (project in file("core"))
@@ -37,13 +40,21 @@ lazy val core = (project in file("core"))
     libraryDependencies += Dependencies.scalaReflect.value % "provided"
   )
 
-lazy val aws = (project in file("aws"))
-  .settings(name := "rules-aws")
+lazy val s3 = (project in file("s3"))
+  .settings(name := "rules-s3")
   .settings(commonSettings: _*)
   .settings(
     libraryDependencies ++= Dependencies.aws
   )
   .dependsOn(core)
+
+lazy val emr = (project in file("emr"))
+  .settings(name := "rules-emr")
+  .settings(commonSettings: _*)
+  .settings(
+    libraryDependencies ++= Dependencies.aws
+  )
+  .dependsOn(s3, core)
 
 lazy val quartz = (project in file("quartz"))
   .settings(name := "rules-quartz")
