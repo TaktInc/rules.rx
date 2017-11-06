@@ -2,10 +2,6 @@ val commonSettings = Seq(
   organization := "com.voltir",
   version := "0.1.1-SNAPSHOT",
   //Takt S3 Publishing
-  resolvers ++= Seq(
-    "Takt Snapshots" at "s3://mvn.takt.com/snapshots",
-    "Takt Releases" at "s3://mvn.takt.com/releases"
-  ),
   publishMavenStyle := false,
   publishTo := {
     val typ = if (isSnapshot.value) "snapshots" else "releases"
@@ -19,7 +15,8 @@ val commonSettings = Seq(
     "-Xfuture",
     "-Ypartial-unification"
   ),
-  crossScalaVersions := Seq("2.12.3", "2.11.11"),
+  //crossScalaVersions := Seq("2.12.3"),
+  scalaVersion := "2.12.3",
   resolvers += "Akka Snapshots" at "https://repo.akka.io/snapshots/",
   addCompilerPlugin(Dependencies.kindProjector),
   resolvers += Resolver.sonatypeRepo("releases"),
