@@ -1,18 +1,20 @@
 package rules.emr
 
 import akka.typed.{ActorRef, Behavior}
-import akka.typed.scaladsl.{Actor, ActorContext}
+import akka.typed.scaladsl.{Actor, ActorContext, TimerScheduler}
 import com.amazonaws.services.elasticmapreduce.AmazonElasticMapReduce
 import rules.{HasOwner, Wire}
 import com.amazonaws.services.elasticmapreduce.model.AddJobFlowStepsRequest
 import rules.emr.ClusterManager.RunningCluster
 import rules.emr.ClusterStepStateWire.StepState
+import concurrent.duration._
 
 class ClusterProxyImpl(
     emr: AmazonElasticMapReduce,
     target: RunningCluster,
     demandWire: ActorRef[Wire.Command[List[Step]]],
-    stepsWire: ActorRef[Wire.Command[Map[StepName, StepState]]]
+    stepsWire: ActorRef[Wire.Command[Map[StepName, StepState]]],
+    timer: TimerScheduler[ClusterProxyImpl.Command]
 )(implicit override val owner: rx.Ctx.Owner)
     extends ClusterDemandInvariant
     with HasOwner {
@@ -34,7 +36,11 @@ class ClusterProxyImpl(
         ctx.system.log
           .warning("Attempting to addJobFlowStep failed: {}!", e.getMessage)
         val toRemove = steps.map(_.stepName).toSet
-        scheduled() = scheduled.now diff toRemove
+
+        //Prevent spamming reattempts when emr.addJobFlowStep fails (ie no internet access)
+        timer.startSingleTimer(ScheduleReattemptKey,
+                               AllowReattempt(toRemove),
+                               2.minutes)
     }
   }
 
@@ -47,7 +53,11 @@ class ClusterProxyImpl(
 
     Actor.immutable { (_, msg) =>
       msg match {
-        case Refresh => scheduled() = Set.empty
+        case Refresh =>
+          scheduled() = Set.empty
+
+        case AllowReattempt(steps) =>
+          scheduled() = scheduled.now diff steps
       }
       Actor.same
     }
@@ -58,6 +68,11 @@ class ClusterProxyImpl(
 object ClusterProxyImpl {
   sealed trait Command
   case object Refresh extends Command
+
+  sealed trait Internal extends Command
+  case class AllowReattempt(steps: Set[StepName]) extends Internal
+  case object ScheduleReattemptKey
+
   import concurrent.duration._
 
   def apply(
@@ -71,8 +86,11 @@ object ClusterProxyImpl {
         ClusterStepStateWire(emr, target, pollStepsInterval),
         "cluster-steps"
       )
-      val proxy = new ClusterProxyImpl(emr, target, demandWire, stepsWire)
-      proxy.init
+      Actor.withTimers { timer =>
+        val proxy =
+          new ClusterProxyImpl(emr, target, demandWire, stepsWire, timer)
+        proxy.init
+      }
     }
   }
 }
