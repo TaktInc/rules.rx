@@ -2,7 +2,7 @@ val commonSettings = Seq(
   organization := "com.voltir",
   version := "0.1.1-SNAPSHOT",
   //Takt S3 Publishing
-  publishMavenStyle := false,
+  publishMavenStyle := true,
   publishTo := {
     val typ = if (isSnapshot.value) "snapshots" else "releases"
     Some(s"Takt $typ" at s"s3://mvn.takt.com/$typ")
