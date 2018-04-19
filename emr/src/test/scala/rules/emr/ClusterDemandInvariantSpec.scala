@@ -11,7 +11,7 @@ import scala.concurrent.duration._
 class ClusterDemandInvariantSpec extends FlatSpec with Matchers {
 
   class TestInvariant extends ClusterDemandInvariant with HasOwner {
-    override val CLEANUP_DELAY_PERIOD: FiniteDuration = 300.millis
+    override lazy val CLEANUP_DELAY_PERIOD: FiniteDuration = 300.millis
     override implicit lazy val owner: Ctx.Owner = rx.Ctx.Owner.Unsafe.Unsafe
   }
 
@@ -20,8 +20,8 @@ class ClusterDemandInvariantSpec extends FlatSpec with Matchers {
     override val config: StepConfig = new StepConfig().withName(name)
   }
 
-  it should "have be empty by default" in {
-    val test = new TestInvariant
+  it should "be empty by default" in {
+    lazy val test = new TestInvariant
     test.invariant.now shouldBe List.empty
   }
 
