@@ -24,7 +24,6 @@ class ClusterDemandInvariantAsyncSpec extends AsyncFlatSpec with Matchers {
   def nextAsFuture[T](inp: Var[T])(implicit owner: Ctx.Owner): Future[T] = {
     val promise: Promise[T] = Promise()
     inp.triggerLater {
-      println(s"OMG: ${inp.now}")
       promise.success(inp.now)
     }
     promise.future
@@ -60,30 +59,30 @@ class ClusterDemandInvariantAsyncSpec extends AsyncFlatSpec with Matchers {
     }
   }
 
-  it should "blah" in {
-    implicit val owner = rx.Ctx.Owner.Unsafe.Unsafe
-
-    import rx.async._
-    import rx.async.Platform._
-    val xxx = Var(0)
-//    xxx.debounce(3000.millis).reduce { case (prev,next) if prev != next =>
-//      println(s"DEBOUNCED: prev = $prev next = $next")
+//  it should "blah" in {
+//    implicit val owner = rx.Ctx.Owner.Unsafe.Unsafe
+//
+//    import rx.async._
+//    import rx.async.Platform._
+//    val xxx = Var(0)
+////    xxx.debounce(3000.millis).reduce { case (prev,next) if prev != next =>
+////      println(s"DEBOUNCED: prev = $prev next = $next")
+////      next
+////    case (_,n) => println(s"Why?: $n") ; n
+////    }
+//
+//    xxx.delay(2000.millis).reduce { case (prev,next) =>
+//      println(s"DELAY: prev = $prev next = $next")
 //      next
-//    case (_,n) => println(s"Why?: $n") ; n
 //    }
-
-    xxx.delay(2000.millis).reduce { case (prev,next) =>
-      println(s"DELAY: prev = $prev next = $next")
-      next
-    }
-
-    //Thread.sleep(3000)
-    (0 to 30).foreach { x =>
-      //Thread.sleep(1000)
-      xxx() = x
-    }
-
-
-    assert(true)
-  }
+//
+//    //Thread.sleep(3000)
+//    (0 to 30).foreach { x =>
+//      //Thread.sleep(1000)
+//      xxx() = x
+//    }
+//
+//
+//    assert(true)
+//  }
 }

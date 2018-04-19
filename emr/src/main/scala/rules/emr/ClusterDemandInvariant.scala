@@ -5,7 +5,7 @@ import rx._
 import rx.async._
 import rx.async.Platform._
 
-import scala.concurrent.duration.FiniteDuration
+import scala.concurrent.duration._
 
 trait ClusterDemandInvariant { self: HasOwner =>
 
