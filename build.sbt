@@ -1,6 +1,6 @@
 val commonSettings = Seq(
   organization := "com.voltir",
-  version := "0.1.1-SNAPSHOT",
+  version := "0.1.3-SNAPSHOT",
   //Takt S3 Publishing
   publishMavenStyle := true,
   publishTo := {
@@ -20,6 +20,7 @@ val commonSettings = Seq(
   resolvers += "Akka Snapshots" at "https://repo.akka.io/snapshots/",
   addCompilerPlugin(Dependencies.kindProjector),
   resolvers += Resolver.sonatypeRepo("releases"),
+  resolvers += Resolver.sonatypeRepo("snapshots"),
   addCompilerPlugin(
     "org.scalamacros" % "paradise" % "2.1.0" cross CrossVersion.full)
 )

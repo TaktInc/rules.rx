@@ -50,7 +50,6 @@ trait AmazonS3Mock { self: MockFactory =>
             .onCall(() => List.empty.asJava)
 
         case h :: Nil =>
-          println("HOLD HERE!")
           (result.getObjectSummaries _)
             .expects()
             .anyNumberOfTimes()
