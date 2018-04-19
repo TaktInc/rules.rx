@@ -2,8 +2,14 @@ package rules.emr
 
 import rules.HasOwner
 import rx._
+import rx.async._
+import rx.async.Platform._
+
+import scala.concurrent.duration.FiniteDuration
 
 trait ClusterDemandInvariant { self: HasOwner =>
+
+  def CLEANUP_DELAY_PERIOD: FiniteDuration
 
   val demand: Var[List[Step]] = Var(List.empty)
 
@@ -25,8 +31,7 @@ trait ClusterDemandInvariant { self: HasOwner =>
     }
   }
 
-  //Clean up scheduled when demand for tasks drops
-  demand.reduce {
+  demand.delay(CLEANUP_DELAY_PERIOD).reduce {
     case (prev, next) =>
       val removed = prev.map(_.stepName).diff(next.map(_.stepName))
       scheduled() = scheduled.now diff removed.toSet

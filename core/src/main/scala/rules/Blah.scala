@@ -22,7 +22,7 @@ object ListSignal {
 
 /////////////
 object Blah {
-  implicit val rxOwner = rx.Ctx.Owner.voodoo
+  //implicit val rxOwner = rx.Ctx.Owner.voodoo
 
   val wurch = Actor.immutable[Wire.Raise[Int]] { (_, msg) =>
     println(s"WURCH: $msg")
@@ -98,6 +98,7 @@ object Blah {
   }
 
   def main(args: Array[String]): Unit = {
+    implicit val rxOwner = rx.Ctx.Owner.Unsafe
     val root = Actor.deferred[Nothing] { ctx =>
       val test1 = ctx.spawn(TestSignal.behavior(2.seconds), "foo-ooo")
       val test2 = ctx.spawn(TestSignal.behavior(5.seconds), "bar-rrr")

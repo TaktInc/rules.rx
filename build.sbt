@@ -1,6 +1,6 @@
 val commonSettings = Seq(
   organization := "com.voltir",
-  version := "0.1.1-SNAPSHOT",
+  version := "0.1.3-SNAPSHOT",
   parallelExecution in Test := false,
   //fork in Test := true,
   scalacOptions ++= Seq(
@@ -9,10 +9,11 @@ val commonSettings = Seq(
     "-Xfuture",
     "-Ypartial-unification"
   ),
-  crossScalaVersions := Seq("2.12.3", "2.11.11"),
+  scalaVersion := "2.12.3",
   resolvers += "Akka Snapshots" at "https://repo.akka.io/snapshots/",
   addCompilerPlugin(Dependencies.kindProjector),
   resolvers += Resolver.sonatypeRepo("releases"),
+  resolvers += Resolver.sonatypeRepo("snapshots"),
   addCompilerPlugin(
     "org.scalamacros" % "paradise" % "2.1.0" cross CrossVersion.full)
 )

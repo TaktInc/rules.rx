@@ -14,7 +14,8 @@ class ClusterProxyImpl(
     target: RunningCluster,
     demandWire: ActorRef[Wire.Command[List[Step]]],
     stepsWire: ActorRef[Wire.Command[Map[StepName, StepState]]],
-    timer: TimerScheduler[ClusterProxyImpl.Command]
+    timer: TimerScheduler[ClusterProxyImpl.Command],
+    override val CLEANUP_DELAY_PERIOD: FiniteDuration
 )(implicit override val owner: rx.Ctx.Owner)
     extends ClusterDemandInvariant
     with HasOwner {
@@ -54,7 +55,7 @@ class ClusterProxyImpl(
     Actor.immutable { (_, msg) =>
       msg match {
         case Refresh =>
-          scheduled() = Set.empty
+          scheduled() = Set.empty[StepName] //todo: should be scheduled() = Set.empty -- fix scala.rx (variance!)
 
         case AllowReattempt(steps) =>
           scheduled() = scheduled.now diff steps
@@ -79,7 +80,8 @@ object ClusterProxyImpl {
       emr: AmazonElasticMapReduce,
       target: RunningCluster,
       pollStepsInterval: FiniteDuration,
-      demandWire: ActorRef[Wire.Command[List[Step]]]
+      demandWire: ActorRef[Wire.Command[List[Step]]],
+      deboucePeriod: FiniteDuration
   )(implicit owner: rx.Ctx.Owner): Behavior[Command] = {
     Actor.deferred[Command] { ctx =>
       val stepsWire = ctx.spawn(
@@ -88,7 +90,7 @@ object ClusterProxyImpl {
       )
       Actor.withTimers { timer =>
         val proxy =
-          new ClusterProxyImpl(emr, target, demandWire, stepsWire, timer)
+          new ClusterProxyImpl(emr, target, demandWire, stepsWire, timer, deboucePeriod)
         proxy.init
       }
     }
