@@ -23,7 +23,7 @@ class ClusterDemandInvariantAsyncSpec extends AsyncFlatSpec with Matchers {
 
   def nextAsFuture[T](inp: Var[T])(implicit owner: Ctx.Owner): Future[T] = {
     val promise: Promise[T] = Promise()
-    inp.triggerLater {
+    inp.triggerLater { _ =>
       promise.success(inp.now)
     }
     promise.future
