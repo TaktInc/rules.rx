@@ -4,7 +4,7 @@ import sbt.Keys._
 object Dependencies {
   lazy val akkaVersion = "2.5.6"
   lazy val akkaTypedVersion = "2.5.7"
-  lazy val scalaRxVersion = "0.4.0-SNAPSHOT"
+  lazy val scalaRxVersion = "0.4.0"
   lazy val awsVersion = "1.11.213"
 
   lazy val kindProjector = "org.spire-math" %% "kind-projector" % "0.9.3"
@@ -15,7 +15,7 @@ object Dependencies {
     "com.typesafe.akka" %% "akka-typed" % akkaTypedVersion,
     //"com.lihaoyi" %% "scalarx" % scalaRxVersion,
     "io.github.voltir" %% "scalarx" % scalaRxVersion,
-    "org.typelevel" %% "cats-core" % "1.0.0-MF",
+    "org.typelevel" %% "cats-core" % "1.1.0",
     "org.scalatest" %% "scalatest" % "3.0.4" % Test,
     "org.scalamock" %% "scalamock" % "4.0.0" % Test,
     "com.typesafe.akka" %% "akka-typed-testkit" % akkaTypedVersion  % Test
